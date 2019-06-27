@@ -36,11 +36,30 @@ $ git remote -v
 ```bash
 $ git clone git@github.com:bergkamp89/gitnote.git
 ```
-git clone默认会把远程仓库整个给clone下来，但只会在本地默认创建一个master分支
+>执行git clone指令后:
+>1. 自动将远程服务器命名为origin
+>2. 下载该服务器下的所有数据
+>3. 创建一个指向master分支的指针,并将该分支命名为origin/master
+>4. 创建名为master的本地分支,并且和远程分支在同一个提交节点
+>5. 本地追踪分支master会自动追踪origin/master分支
+>git clone默认会把远程仓库整个给clone下来，但只会在本地默认创建一个master分支
+
 ### 分支
+#### 概念介绍
++ origin 远程服务器
++ origin/master 远程分支
++ master 本地分支
+>当执行git init时,master会作为初始分支的默认名字
+>当执行git clone时，origin是默认服务器名称
+>可以通过指令git clone -o cat,使得默认服务器名称为cat,而默认远程分支为cat/master
+>master是默认的本地分支,是远程分支origin/master在本地的拷贝
+
++ 追踪分支
+>从远程分支`checkout`一个本地分支,该本地分支被称为追踪分支(tracking branch),被追踪的分支被称为上游分支(upstream branch),追踪分支可以理解为是和远程分支有直接关联的本地分支.如果我们在追踪分支时执行git pull,git会自动知道需要获取和merge的分支的服务器.
+
 #### 创建分支
 ```bash
-$ git branch <branchname>
+$ git branch branchname
 ```
 #### 查看分支
 ```bash
@@ -49,17 +68,71 @@ $ git branch
 `git branch`命令会列出所有分支，当前分支前面会有个*号
 #### 切换分支
 ```bash
-$ git checkout <branchname>
+$ git checkout branchname
 ```
 #### 创建+切换分支
 ```bash
-$ git checkout -b <branchname>
+$ git checkout -b branchname
 ```
 #### 删除分支
 ```bash
-$ git branch -d <branchname>
+$ git branch -d branchname
 ```
+>-d是--delete的缩写,在使用--delete删除分支时,该分支必须完全和它的上游分支merge完成,如果没有上游分支,必须要和HEAD完全merge
+
+```bash
+$ git branch -D branchname
+```
+>-D是--delete --force的缩写,这样写可以在不检查merge状态的情况下删除分支
+
+#### 删除远程分支
+```bash
+$ git push origin -d branchname
+```
+>该指令也会删除追踪分支
+
+#### 删除追踪分支
+```bash
+$ git branch --delete --remotes origin/remote_branch
+```
+>该指令可以删除追踪分支,该操作并没有真正删除远程分支,而是删除的本地分支和远程分支的关联关系,即追踪分支
+
+```bash
+$ git fetch origin --prune
+```
+>git在版本1.6.6之后,可以通过git fetch origin --prune或它的简写git fetch origin -p来单独删除追踪分支
+
 #### 合并某分支到当前分支
 ```bash
-$ git merge <branchname>
+$ git merge branchname
 ```
+#### 创建新的追踪分支
+```bash
+$ git checkout -b branchname origin/remote_branch
+```
+或者
+```bash
+$ git checkout --track origin/dev
+```
+#### 建立本地分支和远程分支的关联(已有的本地分支追踪远程分支)
+```bash
+$ git branch --set-upstream-to=origin/remote_branch your_branch
+```
+或者
+```bash
+$ git branch -u origin/remote_branch
+```
+#### 查看本地分支与远程分支的关联关系(查看上游分支)
+```bash
+$ git branch -vv
+```
+#### 完全获取最新的追踪分支信息
+```bash
+$ git fetch --all
+```
+#### 撤销本地当前分支与远程分支的关联
+```bash
+$ git branch --unset-upstream
+```
+#### 上游分支的简写
+当已经设置了追踪分支,可以通过@{upstream}或 @{u}来引用其上游分支,举例,如果在master分支上,可以通过git merge @{u}等指令来代替git merge origin/master
