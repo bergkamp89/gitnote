@@ -136,3 +136,109 @@ $ git branch --unset-upstream
 ```
 #### 上游分支的简写
 当已经设置了追踪分支,可以通过@{upstream}或 @{u}来引用其上游分支,举例,如果在master分支上,可以通过git merge @{u}等指令来代替git merge origin/master
+
+### 基本用法
+#### 添加文件到Git仓库
+```bash
+$ git add <file>
+$ git commit -m "description"
+```
+>`git add`可以反复多次使用，添加多个文件到仓库，`git commit`可以一次提交很多文件到仓库，`-m`后面输入的是本次提交的说明，可以输入任意内容。
+
+#### 查看仓库当前的状态
+```bash
+$ git status
+```
+#### 查看修改内容
+```bash
+$ git diff
+```
+```bash
+$ git diff --cached
+```
+```bash
+$ git diff HEAD -- <file>
+```
+- `git diff` 对比工作区(未 git add)和暂存区(git add 之后)
+- `git diff --cached` 对比暂存区(git add 之后)和版本库(git commit 之后)
+- `git diff HEAD -- <file>` 对比工作区(未 git add)和版本库(git commit 之后)
+
+### 查看日志
+#### 查看提交日志
+```bash
+$ git log
+```
+>显示从最近到最远的提交日志，包括每个提交的 SHA-1 校验和、作者的名字和电子邮件地址、提交时间以及提交说明等基本信息。
+
+#### 按数量查看
+```bash
+$ git log -n
+```
+#### 按日期查看
+```bash
+$ git log --after="2019-06-29"
+$ git log --after="yesterday"
+$ git log --after="2019-06-20" --before="2019-06-29"
+```
+>注意--since --until和 --after --before是一个意思.
+
+#### 按作者
+```bash
+$ git log --author="Bergkamp"
+$ git log --author="Arsenal\|Bergkamp"
+```
+#### 按commit描述
+```bash
+$ git log --grep="#bug-154"
+```
+>可以传入-i忽略大小写
+
+#### 按文件
+```bash
+$ git log -- <file>
+```
+>这里的--是告诉Git后面的参数是文件路径而不是branch的名字. 如果后面的文件路径不会和某个branch产生混淆, 你可以省略--.
+
+#### 按内容
+```bash
+$ git log -S "Hello,World!"
+```
+>有时想搜索和新增或删除某行代码相关的commit. 可以使用`－S"<string>"`.如果你想使用正则表达式去匹配而不是字符串, 那么你可以使用-G代替-S.
+>这是一个非常有用的debug工具, 使用他你可以定位所有跟某行代码相关的commit. 甚至可以查看某行是什么时候被copy的, 什么时候移到另外一个文件中去的.
+
+#### 按范围
+```bash
+$ git log master..feature
+```
+>master..feature这个range包含了在feature有而在master没有的所有commit.
+
+#### 查看分支合并图
+```bash
+$ git log --graph
+```
+#### 简化日志信息(将每个提交放在一行显示)
+```bash
+$ git log --pretty=oneline
+```
+#### 查看分支的合并情况，包括分支合并图、一行显示、提交校验码缩略显示
+```bash
+$ git log --graph --pretty=oneline --abbrev-commit
+```
+#### 让git log显示每个commit的引用(如:分支、tag等)
+```bash
+$ git log --oneline --decorate
+```
+#### 过滤merge commit
+```bash
+$ git log --no-merges
+```
+#### 只显示merge commit
+```bash
+$ git log --merges
+```
+### 回退版本
+首先，Git必须知道当前版本是哪个版本，在Git中，用HEAD表示当前版本，上一个版本就是HEAD^，上上一个版本就是HEAD^^，往上100个版本就是HEAD~100。
+#### 回退到上一个版本
+```bash
+$ git log --hard HEAD^
+```
