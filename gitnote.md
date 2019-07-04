@@ -106,6 +106,10 @@ $ git fetch origin --prune
 ```bash
 $ git merge branchname
 ```
+#### 只把某分支修改的内容合并到当前分支，不合并commitid
+```bash
+$ git merge --squash branchname 
+```
 #### 创建新的追踪分支
 ```bash
 $ git checkout -b branchname origin/remote_branch
@@ -173,6 +177,14 @@ $ git log
 #### 按数量查看
 ```bash
 $ git log -n
+```
+#### 查看最近n条更新日志，并且简单显示出所涉及的文件
+```bash
+$ git log -n --stat
+```
+#### 查看某一次提交所涉及的文件
+```bash
+$ git show commitid --stat
 ```
 #### 按日期查看
 ```bash
@@ -242,3 +254,4 @@ $ git log --merges
 ```bash
 $ git log --hard HEAD^
 ```
+
