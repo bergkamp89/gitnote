@@ -15,7 +15,7 @@ $ git config --global user.email "email@example.com"
 ```bash
 $ ssh-keygen -t rsa -C "youremail@example.com"
 ```
-##### 检查SSH目录生成SSH密钥
+#### 检查SSH目录生成SSH密钥
 1. 进入ssh目录
 输入命令 `cd ~/.ssh`
 2. 获取ssh密钥信息
@@ -43,6 +43,12 @@ $ git clone git@github.com:bergkamp89/gitnote.git
 >4. 创建名为master的本地分支,并且和远程分支在同一个提交节点
 >5. 本地追踪分支master会自动追踪origin/master分支
 >git clone默认会把远程仓库整个给clone下来，但只会在本地默认创建一个master分支
+
+#### 推送到远程仓库
+```bash
+$ git push -u origin master
+```
+`-u` 表示第一次推送master分支的所有内容，此后，每次本地提交后，只要有必要，就可以使用命令`git push origin master`推送最新修改。
 
 ### 分支
 #### 概念介绍
@@ -73,6 +79,10 @@ $ git checkout branchname
 #### 创建+切换分支
 ```bash
 $ git checkout -b branchname
+```
+#### 在本地创建和远程分支对应的分支
+```bash
+$ git checkout -b branchname origin/branchname
 ```
 #### 删除分支
 ```bash
@@ -110,6 +120,12 @@ $ git merge branchname
 ```bash
 $ git merge --squash branchname 
 ```
+#### 普通模式合并分支
+```bash
+$ git merge --no-ff -m "description" <branchname>
+```
+>因为本次合并要创建一个新的commit，所以加上`-m`参数，把commit描述写进去。合并分支时，加上`--no-ff`参数就可以用普通模式合并，能看出来曾经做过合并，包含作者和时间戳等信息，而fast forward合并就看不出来曾经做过合并。
+
 #### 创建新的追踪分支
 ```bash
 $ git checkout -b branchname origin/remote_branch
@@ -138,10 +154,60 @@ $ git fetch --all
 ```bash
 $ git branch --unset-upstream
 ```
+#### 从本地推送分支
+```bash
+$ git push origin branch-name
+```
+>如果推送失败，先用git pull抓取远程的新提交；
+
+#### 从远程抓取分支
+```bash
+$ git pull
+```
+>如果有冲突，要先处理冲突。
+
 #### 上游分支的简写
 当已经设置了追踪分支,可以通过@{upstream}或 @{u}来引用其上游分支,举例,如果在master分支上,可以通过git merge @{u}等指令来代替git merge origin/master
 
 ### 基本用法
+#### 添加文件
+```bash
+$ git add <file>
+```
+>把文件添加到 暂存区（stage），可被 track 追踪纪录下来。可多次使用来添加多个文件。
+```bash
+$ git add *
+```
+>添加所有修改到暂存区
+```bash
+$ git add -A
+```
+>暂存所有的文件，包括新增加的、修改的和删除的文件。
+```bash
+$ git add .
+```
+>暂存新增加的和修改的文件，不包括已删除的文件。即当前目录下所有文件。
+```bash
+$ git add -u
+```
+>暂存修改的和删除的文件，不包括新增加的文件。
+
+#### 提交文件
+```bash
+$ git commit -m "本次提交说明"
+```
+>一次性把暂存区所有文件修改提交到仓库的当前分支。
+```bash
+$ git commit -am "本次提交说明"
+```
+>使用该命令，Git 就会自动把所有已经跟踪过的文件暂存起来一并提交，从而跳过 git add 步骤，参数 -am 也可写成 -a -m。
+
+#### 重新提交
+```bash
+$ git commit --amend
+```
+>重新提交，最终只会有一个提交，第二次提交将代替第一次提交的结果。尤其适用于提交完了才发现漏掉了几个文件没有添加，或者提交信息写错了的情况。
+
 #### 添加文件到Git仓库
 ```bash
 $ git add <file>
@@ -166,6 +232,39 @@ $ git diff HEAD -- <file>
 - `git diff` 对比工作区(未 git add)和暂存区(git add 之后)
 - `git diff --cached` 对比暂存区(git add 之后)和版本库(git commit 之后)
 - `git diff HEAD -- <file>` 对比工作区(未 git add)和版本库(git commit 之后)
+#### 删除文件
+```bash
+$ git rm <file>
+```
+`git rm <file>`相当于执行
+```bash
+$ rm <file>
+$ git add <file>
+```
+> 进一步解释：
+> Q：比如执行了`rm text.txt` 误删了怎么恢复？
+> A：执行`git checkout -- text.txt` 把版本库的东西重新写回工作区就行了
+> Q：如果执行了`git rm text.txt`我们会发现工作区的text.txt也删除了，怎么恢复？
+> A：先撤销暂存区修改，重新放回工作区，然后再从版本库写回到工作区
+```bash
+$ git reset head text.txt
+$ git checkout -- text.txt
+```
+> Q：如果真的想从版本库里面删除文件怎么做？
+> A：执行`git commit -m "delete text.txt"`，提交后最新的版本库将不包含这个文件
+
+#### 保存工作现场
+```bash
+$ git stash
+```
+#### 查看工作现场
+```bash
+$ git stash list
+```
+#### 恢复工作现场
+```bash
+$ git stash pop
+```
 
 ### 查看日志
 #### 查看提交日志
@@ -248,10 +347,67 @@ $ git log --no-merges
 ```bash
 $ git log --merges
 ```
+#### 查看命令历史
+```bash
+$ git reflog
+```
 ### 回退版本
 首先，Git必须知道当前版本是哪个版本，在Git中，用HEAD表示当前版本，上一个版本就是HEAD^，上上一个版本就是HEAD^^，往上100个版本就是HEAD~100。
 #### 回退到上一个版本
 ```bash
-$ git log --hard HEAD^
+$ git reset --hard HEAD^
 ```
+#### 回退指定版本号
+```bash
+$ git reset --hard commitid
+```
+#### 撤销工作区的修改
+```bash
+$ git checkout -- <file>
+```
+>丢弃工作区的修改，包括修改后还没有放到暂存区和添加到暂存区后又作了修改两种情况。总之，让该文件回到最近一次git commit 或git add 之后的状态。注意：没有 – ，就变成了切换分支的命令了。
 
+#### 撤销暂存区的修改
+1. 把暂存区的修改撤销掉(unstage)，重新放回工作区：
+```bash
+$ git reset HEAD <file>
+```
+2. 撤销工作区的修改:
+```bash
+$ git checkout -- <file>
+```
+### 标签
+>tag就是一个让人容易记住的有意义的名字，它跟某个commit绑在一起。
+
+#### 新建一个标签
+```bash
+$ git tag <tagname>
+```
+>命令`git tag <tagname>`用于新建一个标签，默认为HEAD，也可以指定一个commit id
+
+#### 指定标签信息
+```bash
+$ git tag -a <tagname> -m <description> <branchname> or commit_id
+```
+`git tag -a <tagname> -m "here is tag description"`可以指定标签信息。
+
+#### 查看所有标签
+```bash
+$ git tag
+```
+#### 推送一个本地标签
+```bash
+$ git push origin <tagname>
+```
+#### 推送全部未推送过的本地标签
+```bash
+$ git push origin --tags
+```
+#### 删除一个本地标签
+```bash
+$ git tag -d <tagname>
+```
+#### 删除一个远程标签
+```bash
+$ git push origin :refs/tags/<tagname>
+```
