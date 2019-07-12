@@ -26,11 +26,32 @@ $ git init
 ```
 #### 关联远程仓库
 ```bash
+$ git remote add <shortname> <url>
 $ git remote add origin git@github.com:bergkamp89/gitnote.git
+```
+#### 查看已经配置的远程仓库服务器
+```bash
+$ git remote  效果同  $ git remote show
 ```
 #### 查看远程仓库
 ```bash
 $ git remote -v
+```
+>显示需要读写远程仓库使用的 Git 保存的简写与其对应的 URL
+
+#### 显示获得远程引用的完整列表
+```bash
+$ git ls-remote <remote-name>
+```
+#### 得到远程分支更为详细的信息
+```bash
+$ git remote show <remote-name>
+```
+> 参数 remote-name 通常都是缩写名 origin，可以得到远程分支更为详细的信息以及 pull 和 push 相关提示信息。
+
+#### 重命名一个远程仓库的简写名
+```bash
+$ git remote rename old_name new_name
 ```
 #### 从远程克隆
 ```bash
@@ -72,6 +93,34 @@ $ git branch branchname
 $ git branch
 ```
 `git branch`命令会列出所有分支，当前分支前面会有个*号
+#### 查看远程分支列表
+```bash
+$ git branch -r
+```
+#### 显示所有分支，包括本地和远程
+```bash
+$ git branch -a
+```
+#### 查看每一次分支的最后一次提交
+```bash
+$ git branch -v
+```
+#### 查看本地分支与远程分支的关联关系(查看上游分支)
+```bash
+$ git branch -vv
+```
+#### 查看所有已经被 merge 的 branch
+```bash
+$ git branch --merged
+```
+#### 查看所有还没被 merge 的 branch
+```bash
+$ git branch --no-merged
+```
+#### 删除所有已经被 merge 的 branch
+```bash
+$ git branch --merged | xargs git branch -d
+```
 #### 切换分支
 ```bash
 $ git checkout branchname
@@ -84,6 +133,12 @@ $ git checkout -b branchname
 ```bash
 $ git checkout -b branchname origin/branchname
 ```
+#### 应用某个分支的某一次commitid
+```bash
+$ git cherry-pick commitid
+```
+>假如我们在某个 branch 做了一大堆 commit，而当前 branch 想应用其中的一个，可以使用该命令。
+
 #### 删除分支
 ```bash
 $ git branch -d branchname
@@ -95,11 +150,19 @@ $ git branch -D branchname
 ```
 >-D是--delete --force的缩写,这样写可以在不检查merge状态的情况下删除分支
 
-#### 删除远程分支
+#### 在本地和远程同步删除分支
 ```bash
 $ git push origin -d branchname
 ```
->该指令也会删除追踪分支
+>该指令也会删除追踪分支。
+
+#### 删除一个远程分支
+```bash
+$ git push origin --delete 远程分支
+或者
+$ git push origin:远程分支
+```
+>基本上这个命令做的只是从服务器上移除这个指针。 Git 服务器通常会保留数据一段时间直到垃圾回收运行，所以如果不小心删除掉了，通常是很容易恢复的。
 
 #### 删除追踪分支
 ```bash
@@ -124,7 +187,7 @@ $ git merge --squash branchname
 ```bash
 $ git merge --no-ff -m "description" <branchname>
 ```
->因为本次合并要创建一个新的commit，所以加上`-m`参数，把commit描述写进去。合并分支时，加上`--no-ff`参数就可以用普通模式合并，能看出来曾经做过合并，包含作者和时间戳等信息，而fast forward合并就看不出来曾经做过合并。
+>因为本次合并要创建一个新的commit，所以加上`-m`参数，把commit描述写进去。合并分支时，加上`--no-ff`参数(表示禁用 Fast forward 快进模式)就可以用普通模式合并，能看出来曾经做过合并，包含作者和时间戳等信息，而fast forward合并就看不出来曾经做过合并。
 
 #### 创建新的追踪分支
 ```bash
@@ -142,10 +205,6 @@ $ git branch --set-upstream-to=origin/remote_branch your_branch
 ```bash
 $ git branch -u origin/remote_branch
 ```
-#### 查看本地分支与远程分支的关联关系(查看上游分支)
-```bash
-$ git branch -vv
-```
 #### 完全获取最新的追踪分支信息
 ```bash
 $ git fetch --all
@@ -160,6 +219,12 @@ $ git push origin branch-name
 ```
 >如果推送失败，先用git pull抓取远程的新提交；
 
+#### 推送一部分提交
+```bash
+$ git push <remote-name> <commit SHA>:<remote-branch_name>
+```
+>push 一部分 commit。例如：git push origin 9790eff:master 即为 push 9790eff 之前的所有 commit 到 master。
+
 #### 从远程抓取分支
 ```bash
 $ git pull
@@ -168,6 +233,19 @@ $ git pull
 
 #### 上游分支的简写
 当已经设置了追踪分支,可以通过@{upstream}或 @{u}来引用其上游分支,举例,如果在master分支上,可以通过git merge @{u}等指令来代替git merge origin/master
+
+#### git rebase
+```bash
+$ git rebase 目标分支（通常是 master）
+```
+>在本地 master 上进行变基操作。注意：merge 与 rebase 都是整合来自不同分支的修改。
+>+ merge 会把两个分支的最新快照以及二者最近的共同祖先进行三方合并，合并的结果是生成一个新的快照（并提交）。
+>+ rebase 会把提交到某一分支（当前分支）上的所有修改都转移至另一分支（目标分支）上，就好像“重新播放”一样。
+>+ 变基是将一系列提交按照原有次序依次应用到另一分支上，而合并是把最终结果合在一起。简言之：这两种整合方法的最终结果没有任何区别，但是变基使得提交历史更加整洁。
+>+ 采用变基操作后，项目的最终维护者就不再需要进行整合工作，只需要快进合并便可。
+>+ git rebase –ongo 目标分支 第一分支 第二分支：选中在第二分支里但不在第一分支里的修改，将它们在目标分支（通常是 master）上重演。
+>+ 变基有风险，需要遵守的准则是：不要对在你的仓库外有副本的分支执行变基。否则，会导致混乱。总的原则是，只对尚未推送或分享给别人的本地修改执行变基操作清理历史，从不对已推送至别处的提交执行变基操作，这样才能享受到两种方式带来的便利。
+>+ 还可以有这样的命令：git rebase -i master，git rebase -i 22e21f2，git rebase -i HEAD~3。
 
 ### 基本用法
 #### 添加文件
@@ -219,12 +297,16 @@ $ git commit -m "description"
 ```bash
 $ git status
 ```
+#### 查看仓库当前的状态的简览
+```bash
+$ git status -s 或者 $ git status --short
+```
 #### 查看修改内容
 ```bash
 $ git diff
 ```
 ```bash
-$ git diff --cached
+$ git diff --cached  或者 $ git diff --staged
 ```
 ```bash
 $ git diff HEAD -- <file>
@@ -232,6 +314,19 @@ $ git diff HEAD -- <file>
 - `git diff` 对比工作区(未 git add)和暂存区(git add 之后)
 - `git diff --cached` 对比暂存区(git add 之后)和版本库(git commit 之后)
 - `git diff HEAD -- <file>` 对比工作区(未 git add)和版本库(git commit 之后)
+
+#### 比较两次commit之间的差异
+```bash
+$ git diff commitid1 commitid2
+```
+#### 比较两个分支之间的差异
+```bash
+$ git diff branchname1 branchname2
+```
+#### 查看指定文件具体修改了哪些内容
+```bash
+$ git diff filename
+```
 #### 删除文件
 ```bash
 $ git rm <file>
@@ -253,6 +348,24 @@ $ git checkout -- text.txt
 > Q：如果真的想从版本库里面删除文件怎么做？
 > A：执行`git commit -m "delete text.txt"`，提交后最新的版本库将不包含这个文件
 
+#### 强制删除版本库中有修改的文件
+```bash
+$ git rm -f filename
+```
+#### 把文件从版本库中删除，但让文件保留在工作区且不被 Git 继续追踪（track）
+```bash
+$ git rm --cached filename
+```
+>通常适用于在 rm 之后把文件添加到 .gitignore 中的情况。
+
+#### 删除 log/ 目录下扩展名为 .log 的所有文件
+```bash
+$ git rm log/\*.log
+```
+#### 删除以 ~ 结尾的所有文件
+```bash
+$ git rm \*~
+```
 #### 保存工作现场
 ```bash
 $ git stash
@@ -261,10 +374,23 @@ $ git stash
 ```bash
 $ git stash list
 ```
+#### 恢复工作现场，删除stash内容
+```bash
+$ git stash apply + git stash drop
+```
+>用 git stash apply 命令恢复最近 stash 过的工作现场，但是恢复后，stash 内容并不删除，用 git stash drop 命令来删除。apply 和 drop 后面都可以加上某一指定的 stash_id。
+
 #### 恢复工作现场
 ```bash
 $ git stash pop
 ```
+>相当于上面两条命令，恢复回到工作现场的同时把 stash 内容也删除了。
+
+#### 清空所有暂存区的 stash 纪录
+```bash
+$ git stash clear
+```
+>清空所有暂存区的 stash 纪录。drop 是只删除一条，当然后面可以跟 stash_id 参数来删除指定的某条纪录，不跟参数就是删除最近的。
 
 ### 查看日志
 #### 查看提交日志
@@ -280,6 +406,30 @@ $ git log -n
 #### 查看最近n条更新日志，并且简单显示出所涉及的文件
 ```bash
 $ git log -n --stat
+```
+#### 查看每次提交都改动了哪些文件
+```bash
+$ git log --stat
+```
+#### 查看最近两次提交的基本信息和每次提交的内容差异
+```bash
+$ git log -p -2
+```
+>除显示基本信息之外，还显示每次提交的内容差异，-2 意思是仅显示最近两次提交。特别适用于进行代码审查，或者快速浏览某个搭档提交的 commit 所带来的变化。
+
+#### 查看最后一个 commit 的修改
+```bash
+$ git show
+```
+#### 查看倒数第四个 commit 的修改
+```bash
+$ git show HEAD~3
+```
+>HEAD~3 就是向前数三个的 commit，即倒数第四个 commit。
+
+#### 查看某次 commit 的修改
+```bash
+$ git show commitid
 ```
 #### 查看某一次提交所涉及的文件
 ```bash
@@ -375,6 +525,24 @@ $ git reset HEAD <file>
 2. 撤销工作区的修改:
 ```bash
 $ git checkout -- <file>
+```
+#### 重置所有文件到未修改的状态
+```bash
+$ git reset --hard
+```
+#### 重置到某个 commit
+```bash
+$ git reset commitid
+```
+#### 还原某个 commit
+```bash
+$ git revert commitid
+```
+>还原（revert）的实质是产生一个新的 commit，内容和要还原的 commit 完全相反。比如，A commit 在 main.c 中增加了三行，revert A 产生的 commit 就会删除这三行。如果我们非常确定之前的某个 commit 产生了 bug，最好的办法就是 revert 它。git revert 后 git 会提示写一些 commit message，此处最好简单描述为什么要还原；而重置（reset）会修改历史，常用于还没有 push 的本地 commits。
+
+#### 还原到上次 commit
+```bash
+$ git revert HEAD
 ```
 ### 标签
 >tag就是一个让人容易记住的有意义的名字，它跟某个commit绑在一起。
