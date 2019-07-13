@@ -125,6 +125,14 @@ $ git branch --merged | xargs git branch -d
 ```bash
 $ git checkout branchname
 ```
+#### 将远程分支迁到本地
+```bash
+$ git checkout brancdname origin/branchname
+```
+#### 把远程分支迁到本地顺便切换到该分支
+```bash
+$ git checkout -b branchname origin/branchname
+```
 #### 创建+切换分支
 ```bash
 $ git checkout -b branchname
@@ -205,6 +213,10 @@ $ git branch --set-upstream-to=origin/remote_branch your_branch
 ```bash
 $ git branch -u origin/remote_branch
 ```
+或者
+```bash
+$ git branch --set-upstream branchname origin/branchname
+```
 #### 完全获取最新的追踪分支信息
 ```bash
 $ git fetch --all
@@ -225,11 +237,17 @@ $ git push <remote-name> <commit SHA>:<remote-branch_name>
 ```
 >push 一部分 commit。例如：git push origin 9790eff:master 即为 push 9790eff 之前的所有 commit 到 master。
 
-#### 从远程抓取分支
+#### 抓取远程库最新提交，拉取并合并
 ```bash
 $ git pull
 ```
 >如果有冲突，要先处理冲突。
+
+#### 抓取远程库最新提交，拉取但不合并
+```bash
+$ git fetch
+```
+>没有 merge 的 pull
 
 #### 上游分支的简写
 当已经设置了追踪分支,可以通过@{upstream}或 @{u}来引用其上游分支,举例,如果在master分支上,可以通过git merge @{u}等指令来代替git merge origin/master
@@ -269,6 +287,10 @@ $ git add .
 $ git add -u
 ```
 >暂存修改的和删除的文件，不包括新增加的文件。
+```bash
+$ git add -f 文件
+```
+>git add -f 文件
 
 #### 提交文件
 ```bash
@@ -547,35 +569,53 @@ $ git revert HEAD
 ### 标签
 >tag就是一个让人容易记住的有意义的名字，它跟某个commit绑在一起。
 
+#### 查看所有标签
+```bash
+$ git tag
+```
 #### 新建一个标签
 ```bash
-$ git tag <tagname>
+$ git tag <tagname>  或者  $ git tag <tagname> <commitid>
 ```
 >命令`git tag <tagname>`用于新建一个标签，默认为HEAD，也可以指定一个commit id
 
+#### 查看标签信息
+```bash
+$ git show <tagname>
+```
+#### 使用特定的模式查找标签
+```bash
+$ git tag -l 'tag-name'
+```
+#### 切换 tag
+```bash
+$ git checkout <tagname>
+```
 #### 指定标签信息
 ```bash
 $ git tag -a <tagname> -m <description> <branchname> or commit_id
 ```
 `git tag -a <tagname> -m "here is tag description"`可以指定标签信息。
-
-#### 查看所有标签
-```bash
-$ git tag
-```
 #### 推送一个本地标签
 ```bash
 $ git push origin <tagname>
 ```
+>默认情况下，git push 命令并不会推送标签到远程，必须显示推送。
+
 #### 推送全部未推送过的本地标签
 ```bash
 $ git push origin --tags
 ```
+>参数 –tags 表示一次性推送全部未推送到远程的本地标签，当其他人从仓库中克隆或拉取，他们也能得到那些标签。
+
 #### 删除一个本地标签
 ```bash
 $ git tag -d <tagname>
 ```
+>因为创建的标签都只存储在本地，不会自动推送到远程。所以，打错的标签可以在本地安全删除。
+
 #### 删除一个远程标签
 ```bash
 $ git push origin :refs/tags/<tagname>
 ```
+>先从本地删除，再用该命令从远程删除。
