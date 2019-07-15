@@ -619,3 +619,83 @@ $ git tag -d <tagname>
 $ git push origin :refs/tags/<tagname>
 ```
 >先从本地删除，再用该命令从远程删除。
+
+### ALIAS
+#### 使用 git st 代替 git status 命令
+```bash
+$ git config --global alias.st status
+```
+#### 使用 git co 代替 git checkout 命令
+```bash
+$ git config --global alias.co checkout
+```
+#### 使用 git cm 代替 git commit 命令
+```bash
+$ git config --global alias.cm commit
+```
+#### 使用 git br 代替 git branch 命令
+```bash
+$ git config --global alias.br branch
+```
+#### 使用 git unstage 文件 命令代替 git reset HEAD – 文件 命令
+```bash
+$ git config --global alias.unstage 'reset HEAD --'
+```
+#### 配置一个 git last 命令，让其显示最近一次的提交信息
+```bash
+$ git config --global alias.last 'log -1'
+```
+#### 丧心病狂地配置 git lg 命令，让显示 log 更加优雅，逼格更高
+```bash
+$ git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+```
+#### HELP
+```bash
+git help <key>  或者  git <key> --help
+```
+### OTHERS
+#### 列举所有 Git 能找到的配置
+```bash
+$ git config -l 或 git config --list
+```
+>如果有重复的变量名，Git 会使用它找到的每一个变量的最后一个配置
+
+#### 检查 Git 的某一项配置
+```bash
+$ git config <key>
+```
+#### 配置默认文本编辑器
+```bash
+$ git config --glabal core.editor <vim/emacs/...>
+```
+#### 让 Git 显示颜色，使命令输出看起来更醒目
+```bash
+$ git config --global color.ui true
+```
+#### Git 是大小写不敏感的，如果要大小写敏感需要执行此命令
+```bash
+$ git config core.ignorecase false
+```
+#### 设置显示中文文件名
+```bash
+$ git config --global core.quotepath false
+```
+#### 设置 commit 中的姓名和 email，去掉 –global 参数则为针对每个 repo 单独设定姓名和邮箱
+```bash
+$ git config --global user.name "your name"
+$ git config --global user.email "your email"
+```
+#### 以其他身份 commit
+```bash
+$ git commit --author "your name <your email>"
+```
+#### 重命名文件
+```bash
+$ git mv old_filename new_filename
+```
+>相当于下面三条命令：
+>```bash
+> mv old_filename new_filename
+> git rm old_filename
+> git add new_filename
+>```
