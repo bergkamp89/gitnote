@@ -463,6 +463,11 @@ $ git show commitid
 ```bash
 $ git show commitid --stat
 ```
+#### 查看某一次提交所涉及的文件，文件路径不省略
+```bash
+$ git show commitid --stat-graph-width=3
+$ git show commitid --stat-name-width=200 --stat-graph-width=3
+```
 #### 按日期查看
 ```bash
 $ git log --after="2019-06-29"
